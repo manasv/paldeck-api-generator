@@ -1,3 +1,15 @@
+import re
+
+def normalize_pal_id(pal_id_raw: str) -> str:
+    """
+    Normalize Pal ID to ensure any trailing letter variant is uppercase.
+    Examples: '56' -> '56', '56b' -> '56B', '123' -> '123', '7A' -> '7A', '123b' -> '123B'
+    """
+    m = re.match(r"^(\d+)([a-zA-Z]?)$", pal_id_raw.strip())
+    if m:
+        return m.group(1) + m.group(2).upper()
+    return pal_id_raw.strip()
+
 def find_pal_image_url(soup):
     """Find the best image URL for a Pal from the soup object."""
     # Try icon tab first
@@ -11,6 +23,7 @@ def find_pal_image_url(soup):
     if img and img.get("src"):
         return img["src"]
     return None
+
 def smart_capitalize(word):
     if word.startswith("(") and word.endswith(")") and len(word) > 2:
         # e.g. (Special)

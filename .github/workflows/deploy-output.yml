@@ -1,0 +1,49 @@
+name: Generate and Deploy Output
+
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run script to generate output
+        run: python main.py
+
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: manasv/paldeck-api
+          path: paldeck-api
+          token: ${{ secrets.TARGET_REPO_TOKEN }}
+
+      - name: Copy output to target repo
+        run: |
+          cp -r output/* paldeck-api/
+
+      - name: Commit and push changes
+        run: |
+          cd paldeck-api
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update output from API generator" || echo "No changes to commit"
+          git push

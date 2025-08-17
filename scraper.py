@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from models import Pal
-from utils import smart_capitalize, find_pal_image_url
+from utils import smart_capitalize, find_pal_image_url, normalize_pal_id
 import requests
 import re
 from pathlib import Path
@@ -37,7 +37,7 @@ def scrape_pals():
             continue
 
         name = cols[0].text.strip()
-        pal_id = cols[1].text.strip()
+        pal_id = normalize_pal_id(cols[1].text)
         elements = [
             {"name": a.text.strip(), "id": a.text.strip().lower()}
             for a in cols[2].find_all("a")
@@ -243,9 +243,11 @@ def download_pal_image(pal_name: str, pal_id: str) -> str:
 
     formatted_name = "_".join(smart_capitalize(word) for word in pal_name.split(" "))
     page_url = f"https://palworld.wiki.gg/wiki/{formatted_name}"
-    image_path = f"images/pals/{pal_id}.png"
+    image_path = f"output/images/pals/{pal_id}.png"
 
-    Path(image_path).parent.mkdir(parents=True, exist_ok=True)
+    image_dir = Path(image_path).parent
+    if not image_dir.exists():
+        image_dir.mkdir(parents=True, exist_ok=True)
 
     try:
         page_response = requests.get(page_url, timeout=10)
