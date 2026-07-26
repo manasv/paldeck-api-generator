@@ -1,6 +1,5 @@
 name: Generate and Deploy Output
 
-
 on:
   push:
     branches: [ main ]
@@ -8,9 +7,17 @@ on:
   schedule:
     - cron: '0 0 1 * *'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: generate-and-deploy-output
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout this repo
@@ -20,10 +27,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: python -m pytest -q
 
       - name: Run script to generate output
         run: python main.py

@@ -19,6 +19,7 @@ venv.bak/
 *.swo
 
 # Data files
+output/
 pals.json
 pals/
 *.csv
@@ -56,4 +57,4 @@ Desktop.ini
 # Testing
 .coverage
 htmlcov/
-.pytest_cache/ 
+.pytest_cache/

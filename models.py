@@ -1,16 +1,23 @@
-class Pal:
-    def __init__(self, pal_id, name, elements, work_suitability, hp, attack, defense, alpha_title=None, image=None):
-        self.id = pal_id
-        self.name = name
-        self.elements = elements
-        self.work_suitability = work_suitability
-        self.hp = hp
-        self.attack = attack
-        self.defense = defense
-        self.alpha_title = alpha_title
-        self.image = image
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 
-    def to_dict(self):
+
+WorkSuitability = Tuple[str, str, int]
+
+
+@dataclass
+class Pal:
+    id: str
+    name: str
+    elements: List[Dict[str, str]]
+    work_suitability: List[WorkSuitability]
+    hp: str
+    attack: str
+    defense: str
+    alpha_title: Optional[str] = None
+    image: Optional[str] = None
+
+    def to_dict(self) -> dict:
         return {
             "name": self.name,
             "id": self.id,
@@ -19,14 +26,15 @@ class Pal:
                 {
                     "id": ws_id,
                     "name": ws_name,
-                    "level": level
-                } for (ws_id, ws_name, level) in self.work_suitability
+                    "level": level,
+                }
+                for (ws_id, ws_name, level) in self.work_suitability
             ],
             "alphaTitle": self.alpha_title,
             "image": self.image,
             "stats": {
                 "hp": self.hp,
                 "attack": self.attack,
-                "defense": self.defense
-            }
+                "defense": self.defense,
+            },
         }
